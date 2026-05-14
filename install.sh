@@ -86,7 +86,6 @@ Options:
 		sudo apt install -o DPkg::Options::=--force-confdef -y apt-utils zstd lz4 xz-utils
 		_check_and_add_PATH "$(readlink -f ~/.zshrc)"
 		echo '[=] All Done, Have fun!'
-		exec zsh
 		;;
 	--remove)
 		_remove_procursus
