@@ -1,0 +1,39 @@
+name: Update Bootstrap
+
+on:
+  workflow_call:
+  schedule:
+    - cron: '0 0 * * 1'
+
+jobs:
+  cac:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download Procursus Bootstrap
+        run: |
+          curl -L 'https://apt.procurs.us/bootstraps/big_sur/bootstrap-darwin-amd64.tar.zst' -o '/tmp/bootstrap-darwin-amd64.tar.zst'
+          curl -L 'https://apt.procurs.us/bootstraps/big_sur/bootstrap-darwin-arm64.tar.zst' -o '/tmp/bootstrap-darwin-arm64.tar.zst'
+          
+      - name: unzip zst
+        run: |
+          zstd -dfv '/tmp/bootstrap-darwin-amd64.tar.zst' '/tmp/bootstrap-darwin-arm64.tar.zst'
+
+      - name: check
+        run: |
+          diff -q '/tmp/bootstrap-darwin-amd64.tar' './bootstrap-darwin-amd64.tar' || rsync '/tmp/bootstrap-darwin-amd64.tar' './bootstrap-darwin-amd64.tar'
+          diff -q '/tmp/bootstrap-darwin-arm64.tar' './bootstrap-darwin-arm64.tar' || rsync '/tmp/bootstrap-darwin-arm64.tar' './bootstrap-darwin-arm64.tar'
+          
+      - name: update bootstrap if local change
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .
+          if ! git diff --staged --exit-code 1>>/dev/null; then
+            git commit -m 'update bootstrap'
+            git push
+          fi
