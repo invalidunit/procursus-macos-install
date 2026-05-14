@@ -43,7 +43,7 @@ Options:
 	--remove		Remove Procursus"
 		;;
 	--install)
-		if [ -d "/opt/procursus" ]; then
+		if [ -d "${_p_path}" ]; then
 			"${0}" --remove
 		fi
 		echo "[*] Download Bootstrap(${_arch})..."
