@@ -33,6 +33,13 @@ _remove_PATH(){
 	fi
 }
 
+_remove_procursus(){
+	echo '[*] Remove installed Procursus...'
+	sudo rm -rf "${_p_path}"
+	_remove_PATH "$(readlink -f ~/.zshrc)"
+	echo '[=] Done'
+}
+
 case "${1}" in
 	-h|--help)
 		printf '%s\n'  "Usage: ${0} [options]
@@ -44,7 +51,7 @@ Options:
 		;;
 	--install)
 		if [ -d "${_p_path}" ]; then
-			"${0}" --remove
+			_remove_procursus
 		fi
 		echo "[*] Download Bootstrap(${_arch})..."
 		curl -L "https://invalidunit.github.io/procursus-macos-install/bootstrap-darwin-${_arch}.tar" -o "/tmp/bootstrap-$$.tar"
@@ -81,9 +88,6 @@ Options:
 		echo '[=] All Done, Have fun!'
 		;;
 	--remove)
-		echo '[*] Remove installed Procursus...'
-		sudo rm -rf "${_p_path}"
-		_remove_PATH "$(readlink -f ~/.zshrc)"
-		echo '[=] Done'
+		_remove_procursus
 		;;
 esac
