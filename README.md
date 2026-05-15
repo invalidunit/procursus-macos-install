@@ -1,7 +1,7 @@
 # procursus-macos-install
 
 ## 安装
-	curl -fsSL https://invalidunit.github.io/procursus-macos-install/install.sh | sh -s -- --install
+	curl -fsSL https://invalidunit.github.io/procursus-macos-install/install.sh | sh -s -- --install && exec zsh
 
 ## 移除
 	curl -fsSL https://invalidunit.github.io/procursus-macos-install/install.sh | sh -s -- --remove
