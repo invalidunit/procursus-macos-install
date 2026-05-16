@@ -19,14 +19,16 @@ jobs:
           curl -L 'https://apt.procurs.us/bootstraps/big_sur/bootstrap-darwin-amd64.tar.zst' -o '/tmp/bootstrap-darwin-amd64.tar.zst'
           curl -L 'https://apt.procurs.us/bootstraps/big_sur/bootstrap-darwin-arm64.tar.zst' -o '/tmp/bootstrap-darwin-arm64.tar.zst'
           
-      - name: unzip zst
+      - name: rezip
         run: |
           zstd -dfv '/tmp/bootstrap-darwin-amd64.tar.zst' '/tmp/bootstrap-darwin-arm64.tar.zst'
+          zip -9 -rqj "/tmp/bootstrap-darwin-amd64.tar.zip" "/tmp/bootstrap-darwin-amd64.tar"
+          zip -9 -rqj "/tmp/bootstrap-darwin-arm64.tar.zip" "/tmp/bootstrap-darwin-arm64.tar"
 
       - name: check
         run: |
-          diff -q '/tmp/bootstrap-darwin-amd64.tar' './bootstrap-darwin-amd64.tar' || rsync '/tmp/bootstrap-darwin-amd64.tar' './bootstrap-darwin-amd64.tar'
-          diff -q '/tmp/bootstrap-darwin-arm64.tar' './bootstrap-darwin-arm64.tar' || rsync '/tmp/bootstrap-darwin-arm64.tar' './bootstrap-darwin-arm64.tar'
+          diff -q '/tmp/bootstrap-darwin-amd64.tar.zip' './bootstrap-darwin-amd64.tar.zip' || rsync '/tmp/bootstrap-darwin-amd64.tar.zip' './bootstrap-darwin-amd64.tar.zip'
+          diff -q '/tmp/bootstrap-darwin-arm64.tar.zip' './bootstrap-darwin-arm64.tar.zip' || rsync '/tmp/bootstrap-darwin-arm64.tar.zip' './bootstrap-darwin-arm64.tar.zip'
           
       - name: update bootstrap if local change
         run: |
