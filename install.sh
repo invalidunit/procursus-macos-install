@@ -53,17 +53,20 @@ Options:
 		if [ -d "${_p_path}" ]; then
 			_remove_procursus
 		fi
+		_tmp="/tmp/tmp-$$"
 		echo "[*] Download Bootstrap(${_arch})..."
-		curl -L "https://invalidunit.github.io/procursus-macos-install/bootstrap-darwin-${_arch}.tar" -o "/tmp/bootstrap-$$.tar"
-		if ! tar -tf "/tmp/bootstrap-$$.tar" 2>>/dev/null 1>>/dev/null; then
+		mkdir -p "${_tmp}"
+		curl -L "https://invalidunit.github.io/procursus-macos-install/bootstrap-darwin-${_arch}.tar.zip" -o "${_tmp}/bootstrap-darwin-${_arch}.tar.zip"
+		if ! unzip -tq "${_tmp}/bootstrap-darwin-${_arch}.tar.zip" 2>>/dev/null 1>>/dev/null; then
 			echo '[x] Failed to download Bootstrap'
-			rm -f "/tmp/bootstrap-$$.tar"
+			rm -rf "${_tmp}"
 			exit 1
 		fi
 		echo '[=] Done'
 		sudo echo '[*] Extracting files...'
-		sudo tar -xpkf "/tmp/bootstrap-$$.tar" -C / || :
-		rm -f "/tmp/bootstrap-$$.tar"
+		sudo unzip -q "${_tmp}/bootstrap-darwin-${_arch}.tar.zip" -d "${_tmp}/"
+		sudo tar -xpkf "${_tmp}/bootstrap-darwin-${_arch}.tar" -C / || :
+		rm -rf "${_tmp}"
 		echo '[=] Done'
 		if id _apt 2>>/dev/null 1>>/dev/null; then
 			echo "[*] APT Sandbox User already exists(uid:$(id -u _apt)), skip creating..."
