@@ -4,6 +4,7 @@
 _arch="$(uname -m)"
 _p_path='/opt/procursus'
 
+[ "${_arch}" = 'x86_64' ] && _arch='amd64'
 
 _check_null_uid(){
 	unset _uids i i_max
