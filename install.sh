@@ -3,6 +3,8 @@
 
 _arch="$(uname -m)"
 _p_path='/opt/procursus'
+_sources="${_p_path}/etc/apt/sources.list.d/procursus.sources"
+_keyring="${_p_path}/etc/apt/trusted.gpg.d/memo.gpg"
 
 [ "${_arch}" = 'x86_64' ] && _arch='amd64'
 
@@ -18,14 +20,6 @@ _check_null_uid(){
 		fi
 		i_max="$((i_max-1))"
 	done
-}
-
-_check_and_add_PATH(){
-	if [ -f "${1}" ]; then
-		if ! grep '^PATH' "${1}" | grep -q '/opt/procursus/'; then
-			printf '%s\n' 'export PATH=/opt/procursus/sbin:/opt/procursus/bin:/opt/procursus/local/sbin:/opt/procursus/local/bin:$HOME/bin:$PATH' >>"${1}"
-		fi
-	fi
 }
 
 _remove_PATH(){
@@ -85,10 +79,27 @@ Options:
 			fi
 		fi
 		export PATH=/opt/procursus/sbin:/opt/procursus/bin:/opt/procursus/local/sbin:/opt/procursus/local/bin:$HOME/bin:$PATH
+		if [ -f "${_sources}" ] && [ -f "${_keyring}" ] && ! grep -q '^Signed-By:' "${_sources}"; then
+			echo '[*] Fixed procursus source not reading the signature...'
+			sudo awk -v key="${_keyring}" '
+				/^URIs:[[:space:]]*https:\/\/apt\.procurs\.us\// && !done {
+					print
+					print "Signed-By: " key
+					done=1
+					next
+				}
+				{ print }
+			' "${_sources}" | sudo tee "${_sources}.tmp" > /dev/null && \
+			sudo mv "${_sources}.tmp" "${_sources}"
+			echo '[=] Done'
+		fi
 		sudo apt update
 		sudo apt dist-upgrade -o DPkg::Options::=--force-confdef -y --allow-downgrades || :
 		sudo apt install -o DPkg::Options::=--force-confdef -y apt-utils zstd lz4 xz-utils
-		_check_and_add_PATH "$(readlink -f ~/.zshrc)"
+		[ ! -f ~/.zshrc ] && touch ~/.zshrc
+		if ! grep '^PATH' ~/.zshrc | grep -q '/opt/procursus/'; then
+			printf '%s\n' 'export PATH=/opt/procursus/sbin:/opt/procursus/bin:/opt/procursus/local/sbin:/opt/procursus/local/bin:$HOME/bin:$PATH' >>"$(readlink -f ~/.zshrc)"
+		fi
 		echo '[=] All Done, Have fun!'
 		;;
 	--remove)
